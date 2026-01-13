@@ -59,9 +59,9 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                            <button wire:click="edit({{ $user->id }})" class="text-indigo-600 hover:text-indigo-900">Editar</button>
-                            <button wire:click="retrySync({{ $user->id }})" class="ml-4 text-amber-600 hover:text-amber-900" title="Re-enviar al biométrico">Sincronizar</button>
-                            <button wire:click="delete({{ $user->id }})" wire:confirm="¿Estás seguro de eliminar este usuario?" class="ml-4 text-red-600 hover:text-red-900">Eliminar</button>
+                            <button wire:click="edit({{ $user->id_usuario_app }})" class="text-indigo-600 hover:text-indigo-900">Editar</button>
+                            <button wire:click="retrySync({{ $user->id_usuario_app }})" class="ml-4 text-amber-600 hover:text-amber-900" title="Re-enviar al biométrico">Sincronizar</button>
+                            <button wire:click="delete({{ $user->id_usuario_app }})" wire:confirm="¿Estás seguro de eliminar este usuario?" class="ml-4 text-red-600 hover:text-red-900">Eliminar</button>
                         </td>
                     </tr>
                     @endforeach

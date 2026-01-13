@@ -21,7 +21,7 @@ class GestionPersonal extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
+            'email' => 'required|string|email|max:255|unique:users,email' . ($this->userId ? ',' . $this->userId . ',id_usuario_app' : ''),
             'role_id' => 'required|in:1,2', // 1: Admin, 2: Docente
             'password' => [$this->userId ? 'nullable' : 'required', 'string', 'min:8'],
         ];
@@ -67,24 +67,34 @@ class GestionPersonal extends Component
 
     public function store()
     {
+        // Si estamos editando y la contraseña está vacía, la convertimos a null para que pase la validación 'nullable'
+        if ($this->userId && empty($this->password)) {
+            $this->password = null;
+        }
+
         $this->validate();
 
         $isNewUser = !$this->userId;
 
+        $data = [
+            'name' => $this->name,
+            'email' => $this->email,
+            'id_rol' => $this->role_id,
+        ];
+
+        if (!empty($this->password)) {
+            $data['password'] = Hash::make($this->password);
+        }
+
         // Crear o actualizar el usuario en la BD local
         $user = User::updateOrCreate(
-            ['id' => $this->userId],
-            [
-                'name' => $this->name,
-                'email' => $this->email,
-                'id_rol' => $this->role_id,
-                'password' => Hash::make($this->password),
-            ]
+            ['id_usuario_app' => $this->userId],
+            $data
         );
 
-        // Si es un usuario nuevo, usar su ID de la BD como employee_no
-        if ($isNewUser) {
-            $user->employee_no = (string) $user->id;
+        // Asegurar que tenga employee_no (si es nuevo o si se perdió)
+        if (empty($user->employee_no)) {
+            $user->employee_no = (string) $user->id_usuario_app;
             $user->save();
         }
 
@@ -205,7 +215,7 @@ class GestionPersonal extends Component
 
         // Asegurar que tenga un employee_no antes de enviar
         if (empty($user->employee_no)) {
-            $user->employee_no = (string) $user->id;
+            $user->employee_no = (string) $user->id_usuario_app;
             $user->save();
         }
 
